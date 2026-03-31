@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id         String      @id @default(cuid())
+  name       String
+  slug       String      @unique
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  workspaces Workspace[]
+  users      User[]
+}
+
+model Workspace {
+  id            String                 @id @default(cuid())
+  tenantId      String
+  name          String
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  tenant        Tenant                 @relation(fields: [tenantId], references: [id])
+  companies     Company[]
+  stores        Store[]
+  users         User[]
+  businessModes BusinessMode[]
+  modeSettings  BusinessModeSettings[]
+  categories    Category[]
+  brands        Brand[]
+  units         Unit[]
+  products      Product[]
+  customers     Customer[]
+  suppliers     Supplier[]
+  bills         Bill[]
+}
+
+model Company {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  gstin       String?
+  phone       String?
+  address     String?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  stores      Store[]
+}
+
+model Store {
+  id          String    @id @default(cuid())
+  workspaceId String
+  companyId   String?
+  name        String
+  code        String    @unique
+  address     String?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  company     Company?  @relation(fields: [companyId], references: [id])
+}
+
+model Role {
+  id          String @id @default(cuid())
+  name        String @unique
+  permissions Json
+  users       User[]
+}
+
+model User {
+  id          String    @id @default(cuid())
+  tenantId    String
+  workspaceId String
+  roleId      String
+  name        String
+  email       String    @unique
+  mobile      String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  role        Role      @relation(fields: [roleId], references: [id])
+}
+
+model BusinessMode {
+  id          String                 @id @default(cuid())
+  workspaceId String
+  name        String
+  code        String
+  description String?
+  workspace   Workspace              @relation(fields: [workspaceId], references: [id])
+  settings    BusinessModeSettings[]
+
+  @@unique([workspaceId, code])
+}
+
+model BusinessModeSettings {
+  id                     String       @id @default(cuid())
+  workspaceId            String
+  businessModeId         String
+  customerMobileRequired Boolean      @default(true)
+  barcodeEnabled         Boolean      @default(true)
+  loyaltyEnabled         Boolean      @default(false)
+  dueSalesEnabled        Boolean      @default(true)
+  taxEnabled             Boolean      @default(true)
+  variantsEnabled        Boolean      @default(true)
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+  workspace              Workspace    @relation(fields: [workspaceId], references: [id])
+  businessMode           BusinessMode @relation(fields: [businessModeId], references: [id])
+
+  @@unique([workspaceId, businessModeId])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  products    Product[]
+
+  @@unique([workspaceId, name])
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  products    Product[]
+
+  @@unique([workspaceId, name])
+}
+
+model Unit {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  products    Product[]
+
+  @@unique([workspaceId, name])
+}
+
+model Product {
+  id          String          @id @default(cuid())
+  workspaceId String
+  categoryId  String
+  brandId     String
+  unitId      String
+  name        String
+  sku         String
+  price       Decimal         @db.Decimal(10, 2)
+  stock       Decimal         @db.Decimal(10, 2) @default(0)
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id])
+  category    Category        @relation(fields: [categoryId], references: [id])
+  brand       Brand           @relation(fields: [brandId], references: [id])
+  unit        Unit            @relation(fields: [unitId], references: [id])
+  variants    ProductVariant[]
+  billItems   BillItem[]
+
+  @@unique([workspaceId, sku])
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  size      String?
+  color     String?
+  sku       String  @unique
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Customer {
+  id          String    @id @default(cuid())
+  workspaceId String
+  mobile      String
+  name        String
+  email       String?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  bills       Bill[]
+
+  @@unique([workspaceId, mobile])
+}
+
+model Supplier {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  mobile      String
+  email       String?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, mobile])
+}
+
+model Bill {
+  id          String      @id @default(cuid())
+  workspaceId String
+  customerId  String?
+  billNumber  String      @unique
+  status      BillStatus  @default(SAVED)
+  subtotal    Decimal     @db.Decimal(10, 2)
+  discount    Decimal     @db.Decimal(10, 2)
+  tax         Decimal     @db.Decimal(10, 2)
+  total       Decimal     @db.Decimal(10, 2)
+  createdAt   DateTime    @default(now())
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  customer    Customer?   @relation(fields: [customerId], references: [id])
+  items       BillItem[]
+}
+
+model BillItem {
+  id        String  @id @default(cuid())
+  billId    String
+  productId String
+  quantity  Decimal @db.Decimal(10, 2)
+  price     Decimal @db.Decimal(10, 2)
+  lineTotal Decimal @db.Decimal(10, 2)
+  bill      Bill    @relation(fields: [billId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+enum BillStatus {
+  SAVED
+  HOLD
+}
