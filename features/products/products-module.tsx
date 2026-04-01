@@ -74,38 +74,55 @@ export function ProductsModule({ products }: { products: ProductRow[] }) {
   ];
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[360px,1fr]">
-      <Card>
+    <div className="grid gap-6 xl:grid-cols-[390px,minmax(0,1fr)]">
+      <Card className="rounded-2xl border shadow-sm">
         <CardHeader>
           <CardTitle>Add / update product</CardTitle>
+          <p className="text-sm text-muted-foreground">Create new SKU records or update existing product references.</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-3">
-            <Input {...form.register("name")} placeholder="Product name" />
-            <Input {...form.register("sku")} placeholder="SKU" />
-            <Input {...form.register("category")} placeholder="Category" />
-            <Input {...form.register("brand")} placeholder="Brand" />
-            <Input {...form.register("unit")} placeholder="Unit" />
-            <Input type="number" step="0.01" {...form.register("price", { valueAsNumber: true })} placeholder="Price" />
-            <Input type="number" step="0.01" {...form.register("stock", { valueAsNumber: true })} placeholder="Stock" />
-            <Input {...form.register("variantSku")} placeholder="Variant SKU (optional)" />
+            <Input {...form.register("name")} placeholder="Product name" className="h-9" />
+            <Input {...form.register("sku")} placeholder="SKU" className="h-9" />
             <div className="grid grid-cols-2 gap-2">
-              <Input {...form.register("variantSize")} placeholder="Size" />
-              <Input {...form.register("variantColor")} placeholder="Color" />
+              <Input {...form.register("category")} placeholder="Category" className="h-9" />
+              <Input {...form.register("brand")} placeholder="Brand" className="h-9" />
             </div>
-            <Button disabled={isPending} type="submit" className="w-full">
+            <div className="grid grid-cols-2 gap-2">
+              <Input {...form.register("unit")} placeholder="Unit" className="h-9" />
+              <Input type="number" step="0.01" {...form.register("stock", { valueAsNumber: true })} placeholder="Stock" className="h-9" />
+            </div>
+            <Input type="number" step="0.01" {...form.register("price", { valueAsNumber: true })} placeholder="Price" className="h-9" />
+
+            <div className="rounded-xl border bg-muted/20 p-2.5">
+              <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Variant (optional)</p>
+              <Input {...form.register("variantSku")} placeholder="Variant SKU" className="mb-2 h-9" />
+              <div className="grid grid-cols-2 gap-2">
+                <Input {...form.register("variantSize")} placeholder="Size" className="h-9" />
+                <Input {...form.register("variantColor")} placeholder="Color" className="h-9" />
+              </div>
+            </div>
+
+            <Button disabled={isPending} type="submit" className="h-9 w-full">
               {isPending ? "Saving..." : "Save product"}
             </Button>
           </form>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="rounded-2xl border shadow-sm">
         <CardHeader>
           <CardTitle>Product catalog</CardTitle>
         </CardHeader>
         <CardContent>
-          <DataTable data={products} columns={columns} searchKey="name" searchPlaceholder="Search products" />
+          <DataTable
+            data={products}
+            columns={columns}
+            searchKey="name"
+            searchPlaceholder="Search products"
+            emptyTitle="No products available"
+            emptyDescription="Add a product from the form to start billing and stock tracking."
+          />
         </CardContent>
       </Card>
     </div>

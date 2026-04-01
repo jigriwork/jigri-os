@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,6 +28,8 @@ type DataTableProps<TData> = {
   columns: ColumnDef<TData>[];
   searchKey?: keyof TData;
   searchPlaceholder?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
 };
 
 export function DataTable<TData extends Record<string, unknown>>({
@@ -34,6 +37,8 @@ export function DataTable<TData extends Record<string, unknown>>({
   columns,
   searchKey,
   searchPlaceholder = "Search...",
+  emptyTitle = "No records found",
+  emptyDescription = "Add a record or adjust filters to view results.",
 }: DataTableProps<TData>) {
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -56,23 +61,28 @@ export function DataTable<TData extends Record<string, unknown>>({
   });
 
   return (
-    <div className="space-y-3">
-      {searchKey ? (
-        <Input
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-          placeholder={searchPlaceholder}
-          className="max-w-sm"
-        />
-      ) : null}
+    <div className="space-y-3.5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          {filteredData.length} record{filteredData.length === 1 ? "" : "s"}
+        </div>
+        {searchKey ? (
+          <Input
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            placeholder={searchPlaceholder}
+            className="h-9 w-full sm:max-w-xs"
+          />
+        ) : null}
+      </div>
 
-      <div className="rounded-xl border bg-background">
+      <div className="rounded-xl border bg-background shadow-sm">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="bg-muted/40 px-3 text-xs font-semibold tracking-wide uppercase">
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -95,7 +105,7 @@ export function DataTable<TData extends Record<string, unknown>>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No records found.
+                  <EmptyState title={emptyTitle} description={emptyDescription} className="min-h-44 border-0 bg-transparent" />
                 </TableCell>
               </TableRow>
             )}
@@ -103,7 +113,7 @@ export function DataTable<TData extends Record<string, unknown>>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex items-center justify-end gap-2 border-t pt-3">
         <Button
           variant="outline"
           size="sm"

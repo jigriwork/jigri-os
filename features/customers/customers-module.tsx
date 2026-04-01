@@ -42,29 +42,37 @@ export function CustomersModule({ customers }: { customers: CustomerRow[] }) {
   ];
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[340px,1fr]">
-      <Card>
+    <div className="grid gap-6 xl:grid-cols-[360px,minmax(0,1fr)]">
+      <Card className="rounded-2xl border shadow-sm">
         <CardHeader>
           <CardTitle>Add customer</CardTitle>
+          <p className="text-sm text-muted-foreground">Capture customer identity for fast billing lookup and CRM continuity.</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-3">
-            <Input {...form.register("mobile")} placeholder="Mobile (primary)" />
-            <Input {...form.register("name")} placeholder="Name" />
-            <Input {...form.register("email")} placeholder="Email (optional)" />
-            <Button className="w-full" disabled={isPending} type="submit">
+            <Input {...form.register("mobile")} className="h-9" placeholder="Mobile (primary)" />
+            <Input {...form.register("name")} className="h-9" placeholder="Name" />
+            <Input {...form.register("email")} className="h-9" placeholder="Email (optional)" />
+            <Button className="h-9 w-full" disabled={isPending} type="submit">
               {isPending ? "Saving..." : "Save customer"}
             </Button>
           </form>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="rounded-2xl border shadow-sm">
         <CardHeader>
           <CardTitle>Customers</CardTitle>
         </CardHeader>
         <CardContent>
-          <DataTable data={customers} columns={columns} searchKey="mobile" searchPlaceholder="Search by mobile" />
+          <DataTable
+            data={customers}
+            columns={columns}
+            searchKey="mobile"
+            searchPlaceholder="Search by mobile"
+            emptyTitle="No customer records"
+            emptyDescription="Add a customer to enable mobile-based lookup during billing."
+          />
         </CardContent>
       </Card>
     </div>

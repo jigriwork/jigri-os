@@ -136,6 +136,54 @@ Implemented at `/app/billing`:
    - desktop multi-column speed layout
    - tablet/mobile touch-friendly cards
 
+### Phase 7 — Retail UI/UX Overhaul (POS + App Shell)
+
+This phase focused on upgrading the starter admin feel into a more serious, premium retail operating experience.
+
+#### Billing POS redesign (`/app/billing`)
+- Rebuilt into a practical 3-zone POS flow:
+  - **Left zone:** product search + quick add + dense bill line editor
+  - **Right zone:** sticky customer lookup + totals + primary payment/save actions
+  - **Bottom zone:** sticky quick action bar (new, hold, resume placeholder, clear, save, print placeholder, add customer)
+- Added stronger cashier hierarchy:
+  - prominent payable block with round-off visibility
+  - cleaner line-item grid with faster qty controls
+  - clearer customer lookup states (found/new/idle)
+- Improved empty and placeholder states for first-product flow and action feedback.
+
+#### App shell refinement
+- Upgraded sidebar spacing, active nav style, and hierarchy.
+- Added stronger branded nav block and clearer topbar context.
+- Improved content container width/padding and desktop balance.
+- Added better mobile sidebar overlay behavior.
+
+#### Module consistency updates
+Unified structure across:
+- `/app/dashboard`
+- `/app/products`
+- `/app/customers`
+- `/app/suppliers`
+- `/app/inventory`
+- `/app/reports`
+- `/app/settings`
+
+Enhancements include:
+- reusable page headers (`PageHeader`)
+- consistent action bars and section rhythm
+- improved empty states (`EmptyState`)
+- upgraded form/table card density and spacing
+
+#### Dashboard changes
+- Removed decorative chart-first layout.
+- Replaced with practical operations center, business readiness checklist, and truthful revenue snapshot cards.
+
+#### Shared UI system improvements
+- Added reusable:
+  - `components/shared/page-header.tsx`
+  - `components/shared/empty-state.tsx`
+- Refined `DataTable` with consistent toolbar/count/empty UX.
+- Updated `Input` to support refs for keyboard/touch-focused workflows in POS.
+
 ## PWA Baseline
 
 - App manifest: `app/manifest.ts`
